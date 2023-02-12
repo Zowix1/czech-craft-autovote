@@ -1,0 +1,17 @@
+{
+  "name": "czech-craft-script",
+  "version": "1.0.0",
+  "description": "Automatic voting on czech-craft",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zowix",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "puppeteer": "^19.6.3",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-recaptcha": "^3.6.6"
+  }
+}
