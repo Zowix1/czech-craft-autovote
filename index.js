@@ -20,6 +20,7 @@ const time = 2 * 60 * 60 * 1000 + 2 * 60 * 1000; // 2 hodiny a 2 minuty
     headless: true,
     slowMo: 20,
     executablePath: executablePath(),
+    args: ['--no-sandbox'],
   });
   const page = await browser.newPage();
 
