@@ -18,7 +18,7 @@ const time = 2 * 60 * 60 * 1000 + 2 * 60 * 1000; // 2 hodiny a 2 minuty
 (async () => {
   console.log('Starting voting process...');
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     slowMo: 20,
     executablePath: executablePath(),
     args: ['--no-sandbox'],
