@@ -16,22 +16,26 @@ const config = JSON.parse(content);
 const time = 2 * 60 * 60 * 1000 + 2 * 60 * 1000; // 2 hodiny a 2 minuty
 
 (async () => {
+  console.log('Starting voting process...');
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     slowMo: 20,
     executablePath: executablePath(),
     args: ['--no-sandbox'],
   });
   const page = await browser.newPage();
 
+  const detectError = async () => {
+    const alert = await page.$(config.alert_class);
+    return alert;
+  };
+
   const vote = async () => {
-    console.log('Starting voting process...');
+    console.log(`----------\nTrying to vote... - ${getDate(config.utc_minutes_offset || 0)}`);
 
     await page.goto(config.page_url);
 
-    const alert = await page.$x(config.alert_xpath);
-    const text = alert.length && (await page.evaluate((el) => el.textContent, alert[0]));
-    if (text === 'Již si hlasoval!') {
+    if (await detectError()) {
       console.log('Failed to vote!');
       return;
     }
@@ -47,6 +51,14 @@ const time = 2 * 60 * 60 * 1000 + 2 * 60 * 1000; // 2 hodiny a 2 minuty
     if (solved) {
       const button = await page.$x(config.button_xpath);
       await button[0].click();
+
+      await page.waitForNavigation();
+
+      if (await detectError()) {
+        console.log('Failed to vote!');
+        return;
+      }
+
       console.log('Successfully voted!');
     }
 
@@ -59,3 +71,11 @@ const time = 2 * 60 * 60 * 1000 + 2 * 60 * 1000; // 2 hodiny a 2 minuty
 
   // await browser.close();
 })();
+
+function getDate(offset) {
+  let date = new Date();
+
+  offset && (date = new Date(date.getTime() + offset * 60 * 1000));
+
+  return date.toUTCString();
+}

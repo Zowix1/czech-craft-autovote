@@ -13,9 +13,9 @@
 
   "button_xpath": "/html/body/div[1]/div[1]/div/form/button",
 
-  "alert_xpath": "/html/body/div/div[1]/div/div/b",
+  "alert_class": ".alert.alert-error",
 
-  "submit_alert_xpath": "/html/body/div[1]/div[1]/div[1]",
+  "username": "Zowix",
 
-  "username": "Zowix"
+  "utc_minutes_offset": 60
 }
