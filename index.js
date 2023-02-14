@@ -47,7 +47,7 @@ const time = Math.max(config.vote_minutes_inteval, 122) * 60 * 1000;
     }\n  Server: ${config.page_url}\n  Currently voting from address:\n    ${await getVotingIP()}`
   );
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     slowMo: 20,
     executablePath: executablePath(),
     args: ['--no-sandbox'],
