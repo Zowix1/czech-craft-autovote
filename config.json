@@ -15,7 +15,11 @@
 
   "alert_class": ".alert.alert-error",
 
+  "success_class": ".alert.alert-success",
+
   "username": "Zowix",
+
+  "vote_minutes_inteval": 122,
 
   "utc_minutes_offset": 60
 }

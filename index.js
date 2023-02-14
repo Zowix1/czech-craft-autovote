@@ -10,15 +10,44 @@ puppeteer.use(
   })
 );
 
+const fetch = require('node-fetch');
+const getVotingIP = async () => {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    if (response.ok) {
+      const { ip } = await response.json();
+      return ip;
+    }
+    throw new Error('Failed to obtain public IP');
+  } catch (err) {
+    return err || err.message || 'Failed to obtain public IP';
+  }
+};
+
 const fs = require('fs');
 const content = fs.readFileSync('config.json', 'utf8');
 const config = JSON.parse(content);
-const time = 2 * 60 * 60 * 1000 + 2 * 60 * 1000; // 2 hodiny a 2 minuty
+const time = Math.max(config.vote_minutes_inteval, 122) * 60 * 1000;
 
 (async () => {
-  console.log('Starting voting process...');
+  console.log(`
+ _______  _______             _______  __   __  _______  _______  __   __  _______  _______  _______ 
+ |       ||       |           |   _   ||  | |  ||       ||       ||  | |  ||       ||       ||       |
+ |       ||       |   ____    |  |_|  ||  | |  ||_     _||   _   ||  |_|  ||   _   ||_     _||    ___|
+ |       ||       |  |____|   |       ||  |_|  |  |   |  |  | |  ||       ||  | |  |  |   |  |   |___ 
+ |      _||      _|           |       ||       |  |   |  |  |_|  ||       ||  |_|  |  |   |  |    ___|
+ |     |_ |     |_            |   _   ||       |  |   |  |       | |     | |       |  |   |  |   |___ 
+ |_______||_______|           |__| |__||_______|  |___|  |_______|  |___|  |_______|  |___|  |_______|
+ 
+                                                                                      by Zowix
+  `);
+  console.log(
+    `Starting voting process...\n  Voting every ${time / 60 / 1000} minutes\n  Username: ${
+      config.username
+    }\n  Server: ${config.page_url}\n  Currently voting from address:\n    ${await getVotingIP()}`
+  );
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     slowMo: 20,
     executablePath: executablePath(),
     args: ['--no-sandbox'],
@@ -30,13 +59,18 @@ const time = 2 * 60 * 60 * 1000 + 2 * 60 * 1000; // 2 hodiny a 2 minuty
     return alert;
   };
 
+  const detectSuccess = async () => {
+    const success = await page.$(config.success_class);
+    return success;
+  };
+
   const vote = async () => {
-    console.log(`----------\nTrying to vote... - ${getDate(config.utc_minutes_offset || 0)}`);
+    console.log(`----------\nTrying to vote - ${getDate(config.utc_minutes_offset || 0)}`);
 
     await page.goto(config.page_url);
 
     if (await detectError()) {
-      console.log('Failed to vote!');
+      console.log('   Failed to vote!');
       return;
     }
 
@@ -46,6 +80,7 @@ const time = 2 * 60 * 60 * 1000 + 2 * 60 * 1000; // 2 hodiny a 2 minuty
     const checkbox = await page.$x(config.checkbox_xpath);
     await checkbox[0].click();
 
+    console.log('   Solving captcha...');
     const { solved, error } = await page.solveRecaptchas();
 
     if (solved) {
@@ -55,14 +90,19 @@ const time = 2 * 60 * 60 * 1000 + 2 * 60 * 1000; // 2 hodiny a 2 minuty
       await page.waitForNavigation();
 
       if (await detectError()) {
-        console.log('Failed to vote!');
+        console.log('   Failed to vote!');
         return;
       }
 
-      console.log('Successfully voted!');
+      if (await detectSuccess()) {
+        console.log('   Successfully voted!');
+        return;
+      }
+
+      console.log('   Something went wrong');
     }
 
-    error && console.log('Failed to bypass captcha!');
+    error && console.log('   Failed to bypass captcha!');
   };
 
   await vote();
