@@ -13,6 +13,8 @@
 
   "button_xpath": "/html/body/div[1]/div[1]/div/form/button",
 
+  "internal_xpath": "/html/body/h1",
+
   "alert_class": ".alert.alert-error",
 
   "success_class": ".alert.alert-success",

@@ -47,7 +47,7 @@ const time = Math.max(config.vote_minutes_inteval, 122) * 60 * 1000;
     }\n  Server: ${config.page_url}\n  Currently voting from address:\n    ${await getVotingIP()}`
   );
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     slowMo: 20,
     executablePath: executablePath(),
     args: ['--no-sandbox'],
@@ -56,7 +56,10 @@ const time = Math.max(config.vote_minutes_inteval, 122) * 60 * 1000;
 
   const detectError = async () => {
     const alert = await page.$(config.alert_class);
-    return alert;
+    if (!alert) return false;
+    const textContent = await alert.getProperty('textContent');
+    const text = await textContent.jsonValue();
+    return text || 'unknown error';
   };
 
   const detectSuccess = async () => {
@@ -64,33 +67,68 @@ const time = Math.max(config.vote_minutes_inteval, 122) * 60 * 1000;
     return success;
   };
 
+  const detect500 = async () => {
+    const [internalErr] = await page.$x(config.internal_xpath);
+
+    if (!internalErr) return false;
+
+    const textContent = await internalErr.getProperty('textContent');
+    const text = await textContent.jsonValue();
+
+    if (text.toLowerCase().includes('internal server error')) return true;
+
+    return false;
+  };
+
   const vote = async () => {
     console.log(`----------\nTrying to vote - ${getDate(config.utc_minutes_offset || 0)}`);
 
     await page.goto(config.page_url);
 
-    if (await detectError()) {
-      console.log('   Failed to vote!');
+    if (await detect500()) {
+      console.log('   The website seems to be down.');
       return;
     }
 
-    const usernameInput = await page.$x(config.username_xpath);
-    await usernameInput[0].type(config.username);
+    const loadError = await detectError();
+    if (loadError) {
+      console.log(`   Failed to vote!\n    Reason:\n     ${loadError}`);
+      return;
+    }
 
-    const checkbox = await page.$x(config.checkbox_xpath);
-    await checkbox[0].click();
+    const [usernameInput] = await page.$x(config.username_xpath);
+    if (!usernameInput) {
+      console.log('   Failed to find username input field!');
+      if (await detect500()) console.log('   The website seems to be down.');
+      return;
+    }
+    await usernameInput.type(config.username);
+
+    const [checkbox] = await page.$x(config.checkbox_xpath);
+    if (!checkbox) {
+      console.log('   Failed to find privacy checkbox!');
+      if (await detect500()) console.log('   The website seems to be down.');
+      return;
+    }
+    await checkbox.click();
 
     console.log('   Solving captcha...');
     const { solved, error } = await page.solveRecaptchas();
 
     if (solved) {
-      const button = await page.$x(config.button_xpath);
-      await button[0].click();
+      const [button] = await page.$x(config.button_xpath);
+      await button.click();
 
       await page.waitForNavigation();
 
-      if (await detectError()) {
-        console.log('   Failed to vote!');
+      if (await detect500()) {
+        console.log('   Cannot confirm vote status.\n    The website seems to be down.');
+        return;
+      }
+
+      const hasError = await detectError();
+      if (hasError) {
+        console.log(`   Failed to vote!\n    Reason:\n     ${hasError}`);
         return;
       }
 
