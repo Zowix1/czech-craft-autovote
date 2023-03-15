@@ -68,14 +68,27 @@ const time = Math.max(config.vote_minutes_inteval, 122) * 60 * 1000;
   };
 
   const detect500 = async () => {
-    const [internalErr] = await page.$x(config.internal_xpath);
+    const [internalErr] = await page.$x(config.fivezerozero);
+    const [gatewayErr] = await page.$x(config.fivezerotwo);
 
-    if (!internalErr) return false;
+    if (!internalErr && !gatewayErr) return false;
 
-    const textContent = await internalErr.getProperty('textContent');
-    const text = await textContent.jsonValue();
+    let text;
+    if (internalErr) {
+      const textContent = await internalErr.getProperty('textContent');
+      text = await textContent.jsonValue();
+    }
+    if (gatewayErr) {
+      const textContent = await gatewayErr.getProperty('textContent');
+      console.log(textContent);
+      text = await textContent.jsonValue();
+    }
 
-    if (text.toLowerCase().includes('internal server error')) return true;
+    if (
+      text.toLowerCase().includes('internal server error') ||
+      text.toLowerCase().includes('502 bad gateway')
+    )
+      return true;
 
     return false;
   };
