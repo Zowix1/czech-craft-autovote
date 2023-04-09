@@ -112,37 +112,77 @@ Zmáčkni `CTRL + X`
 nano config.json
 ```
 
+Config pro Czech-Craft
+
 ```json
 {
   "sitekey": "6LdG2UkUAAAAALt2hHRqE7k0-9GR7XKYJKGaiqC6",
-  // NEMĚNÍME - pouze pokud chcete použít kód pro jinou stránku než czech-craft
 
   "page_url": "https://czech-craft.eu/server/epes/vote/",
   // URL SERVERU PRO HLASOVÁNÍ (stránka kde se nachází reCAPTCHA)
 
   "api_submit_page": "http://2captcha.com/in.php",
-  // NEMĚNÍME
 
   "api_retrive_page": "http://2captcha.com/res.php",
-  // NEMĚNÍME
 
   "username_xpath": "/html/body/div[1]/div[1]/div/form/input[1]",
-  // NEMĚNÍME
 
   "checkbox_xpath": "/html/body/div[1]/div[1]/div/form/div[1]/input",
-  // NEMĚNÍME
 
   "button_xpath": "/html/body/div[1]/div[1]/div/form/button",
-  // NEMĚNÍME
+
+  "fivezerozero": "/html/body/h1",
+  "fivezerotwo": "/html/body/center[1]/h1",
 
   "alert_class": ".alert.alert-error",
-  // NEMĚNÍME
+
+  "success_class": ".alert.alert-success",
 
   "username": "Zowix",
-  // VAŠE USERNAME
+  // USERNAME
+
+  "vote_minutes_inteval": 122,
+  // DOBA PAUZY MEZI JEDNOTLIVÝMI POKUSY O HLASOVÁNÍ
 
   "utc_minutes_offset": 60
-  // Odchylka od UTC času v minutách (slouží pouze pro logování do konzole) - NEDŮLEŽITÉ
+  // ODCHYLKA OD UTC ČASU Z MÍSTA KDE JE VPS. (pouze pro logování do konzole - není potřeba)
+}
+```
+
+Config pro minecraft-list
+
+```json
+{
+  "sitekey": "6Lc9noYcAAAAAOBha47qCNaCWF8AeggNFOyUh9pe",
+
+  "page_url": "https://www.minecraft-list.cz/server/majnuj/vote/",
+  // URL SERVERU PRO HLASOVÁNÍ (stránka kde se nachází reCAPTCHA)
+
+  "api_submit_page": "http://2captcha.com/in.php",
+
+  "api_retrive_page": "http://2captcha.com/res.php",
+
+  "username_xpath": "/html/body/main/section/div/div[2]/div[1]/div/div/form/div[2]/div[3]/div[2]/label/input",
+
+  "checkbox_xpath": "/html/body/main/section/div/div[2]/div[1]/div/div/form/div[2]/div[3]/div[3]/div[2]/input",
+
+  "button_xpath": "/html/body/main/section/div/div[2]/div[1]/div/div/form/div[2]/div[4]/div[2]/div/button",
+
+  "fivezerozero": "/html/body/h1",
+  "fivezerotwo": "/html/body/center[1]/h1",
+
+  "alert_class": ".alert.alert-primary",
+
+  "success_class": ".alert.alert-success",
+
+  "username": "Zowix",
+  // USERNAME
+
+  "vote_minutes_inteval": 122,
+  // DOBA PAUZY MEZI JEDNOTLIVÝMI POKUSY O HLASOVÁNÍ
+
+  "utc_minutes_offset": 60
+  // ODCHYLKA OD UTC ČASU Z MÍSTA KDE JE VPS. (pouze pro logování do konzole - není potřeba)
 }
 ```
 
